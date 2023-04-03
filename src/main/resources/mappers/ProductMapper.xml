@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.springboot_coolshark.mapper.ProductMapper">
+    <insert id="insert">
+        INSERT INTO product
+        VALUES (NULL, #{title}, #{price}, #{oldPrice}, #{saleCount}, #{num}, #{categoryId}, #{url}, 0, #{created})
+    </insert>
+
+    <select id="selectAdmin" resultType="com.example.springboot_coolshark.pojo.vo.ProductAdminVO">
+        SELECT id,
+               title,
+               price,
+               old_price  oldPrice,
+               sale_Count saleCount,
+               num,
+               url,
+               view_count viewCount,
+               created
+        FROM product
+    </select>
+
+    <select id="selectUrlById" resultType="string">
+        SELECT url
+        FROM product
+        WHERE id = #{id}
+    </select>
+
+    <delete id="deleteById">
+        DELETE
+        FROM product
+        WHERE id = #{id}
+    </delete>
+
+    <select id="selectUpdateById" resultType="com.example.springboot_coolshark.pojo.vo.ProductUpdateVO">
+        SELECT id,
+               title,
+               price,
+               old_price   oldPrice,
+               sale_Count  saleCount,
+               num,
+               category_id categoryId,
+               url
+        FROM product
+        WHERE id = #{id}
+    </select>
+
+    <update id="update">
+        UPDATE product
+        <set>
+            <if test="title!=null">title=#{title},</if>
+            <if test="price!=null">price=#{price},</if>
+            <if test="oldPrice!=null">old_price=#{oldPrice},</if>
+            <if test="num!=null">num=#{num},</if>
+            <if test="saleCount!=null">sale_Count=#{saleCount},</if>
+            <if test="url!=null">url=#{url},</if>
+            <if test="categoryId!=null">category_id=#{categoryId},</if>
+            <if test="created!=null">created=#{created},</if>
+            <if test="viewCount!=null">view_count=#{viewCount}</if>
+        </set>
+        WHERE id=#{id}
+    </update>
+
+    <select id="selectForTop" resultType="com.example.springboot_coolshark.pojo.vo.ProductTopVO">
+        SELECT id, title, sale_Count saleCount
+        FROM product
+        ORDER BY saleCount DESC LIMIT 0,6
+    </select>
+
+    <select id="selectIndex" resultType="com.example.springboot_coolshark.pojo.vo.ProductIndexVO">
+        SELECT id, title, price, old_price oldPrice, url, sale_Count saleCount
+        FROM product
+    </select>
+
+    <select id="selectDetailById" resultType="com.example.springboot_coolshark.pojo.vo.ProductDetailVO">
+        SELECT id,title,price,old_price oldPrice,sale_Count saleCount,
+               num,url,view_count viewCount,created
+        FROM product
+        WHERE id=#{id}
+    </select>
+
+    <update id="updateViewCountById">
+        UPDATE product
+        SET view_count = view_count+1
+        WHERE id=#{id}
+    </update>
+
+    <select id="selectByCid" resultType="com.example.springboot_coolshark.pojo.vo.ProductIndexVO">
+        SELECT id, title, price, old_price oldPrice, url, sale_Count saleCount
+        FROM product
+        WHERE category_id=#{id}
+    </select>
+
+    <select id="selectByWd" resultType="com.example.springboot_coolshark.pojo.vo.ProductIndexVO">
+        SELECT id, title, price, old_price oldPrice, url, sale_Count saleCount
+        FROM product
+        WHERE title LIKE CONCAT('%',#{wd},'%')
+    </select>
+</mapper>

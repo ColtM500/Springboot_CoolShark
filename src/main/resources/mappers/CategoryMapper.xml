@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.springboot_coolshark.mapper.CategoryMapper">
+    <select id="select" resultType="com.example.springboot_coolshark.pojo.entity.Category">
+        SELECT  id,name FROM category
+    </select>
+
+    <delete id="deleteById">
+        DELETE FROM category WHERE id=#{id}
+    </delete>
+
+    <insert id="insert">
+        INSERT INTO category VALUES (NULL,#{name})
+    </insert>
+
+    <update id="update">
+        UPDATE category SET name=#{name} WHERE id=#{id}
+    </update>
+</mapper>

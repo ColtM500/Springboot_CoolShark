@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/element-ui/2.15.9/theme-chalk/index.css">
+    <style>
+        .el-header a {
+            color: #666;
+            text-decoration: none;
+        }
+
+        .el-menu.el-menu--horizontal {
+            border-bottom: 0;
+        }
+
+        .el-table .el-table__cell {
+            padding: 0;
+        }
+
+        .el-table .cell{
+            white-space: nowrap; /*设置文本内容不换行*/
+            text-overflow: ellipsis;/*设置文本超出时用省略号展示*/
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-container>
+        <el-header height="150px">
+            <div style="width: 1200px;margin: 0 auto">
+                <img style="vertical-align: middle" src="imgs/logo.png" width="300" alt="">
+                <a href="/">首页</a>
+                <el-divider direction="vertical"></el-divider>
+                <a href="">热点资讯</a>
+                <el-divider direction="vertical"></el-divider>
+                <a href="">商家入驻</a>
+                <el-divider direction="vertical"></el-divider>
+                <a href="">社会招聘</a>
+                <el-divider direction="vertical"></el-divider>
+                <a href="">校园招聘</a>
+                <el-divider direction="vertical"></el-divider>
+                <a href="">帮助</a>
+            </div>
+            <!--导航菜单开始-->
+            <div style="background-color: #0aa1ed">
+                <el-menu  style="width: 1200px;margin: 0 auto" mode="horizontal" background-color="#0aa1ed"
+                         text-color="#fff" active-text-color="#fff" @select="handleSelect">
+                    <el-menu-item v-for="c in categoryArr" :index="c.id">{{c.name}}</el-menu-item>
+                    <div style="float: right;position: relative;top: 10px">
+                        <el-input @keydown.native.enter="search()" type="text" v-model="wd">
+                            <!--在文本框中内嵌一个搜索按钮-->
+                            <el-button slot="append" icon="el-icon-search" @click="search()"></el-button>
+                        </el-input>
+                    </div>
+                </el-menu>
+            </div>
+            <!--导航菜单结束-->
+        </el-header>
+        <el-main style="width: 1200px;margin: 0 auto">
+            <el-row gutter="20">
+
+            </el-row>
+
+            <el-row gutter="20">
+                <el-col span="6" v-for="p in productArr">
+                    <el-card>
+                        <a :href="'/detail.html?id='+p.id">
+                            <img :src="p.url" width="100%" height="233">
+                        </a>
+                        <p style="font-size: 14px;height: 30px">
+                            <a :href="'detail.html?id='+p.id">
+                                {{p.title}}
+                            </a>
+                        </p>
+                        <p style="font-size: 12px">
+                            <b>￥{{p.price}}</b> <s>{{p.oldPrice}}</s>
+                            <span style="float: right">销量:{{p.saleCount}}件</span>
+                        </p>
+                    </el-card>
+                </el-col>
+            </el-row>
+
+        </el-main>
+        <el-footer>
+            <div style="background-image: url('imgs/wave.png');height: 90px"></div>
+            <div style="background-color: #282c30;color: #666;text-align: center;padding: 50px 0">
+                <p>Copyright © 北京达内金桥科技有限公司版权所有 京ICP备12003709号-3 京公网安备 11010802029572号</p>
+                <p>涵盖20余门课程体系，致力于打造权威的IT职业教育学习平台</p>
+                <p>达内在线WWW.TMOOC.CN 专注于IT职业技能培训</p>
+            </div>
+        </el-footer>
+    </el-container>
+</div>
+</body>
+<!--引入axios和vue框架文件-->
+<script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.min.js"></script>
+
+<!-- import Vue before Element -->
+<script src="https://cdn.staticfile.org/vue/2.6.14/vue.min.js"></script>
+<!-- import JavaScript -->
+<script src="https://cdn.staticfile.org/element-ui/2.15.9/index.min.js"></script>
+<script>
+    let v = new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                categoryArr: [],
+                bannerArr: [],
+                topArr: [],
+                productArr: [],
+                wd:""
+            }
+        },
+        methods: {
+            handleSelect(key, keyPath){
+                //发请求
+                axios.get("/product/selectByCid?id="+key).then(function (response) {
+                    v.productArr = response.data;
+                })
+            },
+            search(){
+                axios.get("/product/selectByWd?wd="+v.wd).then(function (response) {
+                    v.productArr = response.data;
+                })
+            }
+        },
+        created: function () {
+            //获取分类资源
+            axios.get("/category/select").then(function (response) {
+                v.categoryArr = response.data;
+            })
+
+            //判断来此页面的目的到底是显示分类下的商品还是搜索商品
+            //?=5 ?wd=牛仔裤  indexof方法如果不包含值为-1
+            if (location.search.indexOf("wd")!=-1){//包含wd
+                //发请求通过关键字搜索商品
+                axios.get("/product/selectByWd"+location.search).then(function (response) {
+                    v.productArr = response.data;
+                })
+            }else{//包含id 处理分类业务
+                //获取某个分类下的商品数据
+                axios.get("/product/selectByCid"+location.search).then(function (response) {
+                    v.productArr = response.data;
+                })
+            }
+
+        }
+    })
+</script>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/element-ui/2.15.9/theme-chalk/index.css">
+</head>
+<body>
+<div id="app">
+    <el-page-header style="background-color: #0096dc;color: white;line-height: 60px"
+                    @back="goBack" content="修改商品页面">
+    </el-page-header>
+    <el-card style="width: 600px;height: 800px;margin: 0 auto">
+        <el-form label-width="80px">
+            <el-form-item label="商品标题">
+                <el-input v-model="p.title" type="text"></el-input>
+            </el-form-item>
+            <el-form-item label="商品价格">
+                <el-input v-model="p.price" type="text"></el-input>
+            </el-form-item>
+            <el-form-item label="商品原价">
+                <el-input v-model="p.oldPrice" type="text"></el-input>
+            </el-form-item>
+            <el-form-item label="商品销量">
+                <el-input v-model="p.saleCount" type="text"></el-input>
+            </el-form-item>
+            <el-form-item label="商品库存">
+                <el-input v-model="p.num" type="text"></el-input>
+            </el-form-item>
+            <el-form-item label="商品分类">
+                <el-select placeholder="请选择分类" v-model="p.categoryId">
+                    <el-option v-for="c in arr" :label="c.name" :value="c.id"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="商品图片">
+                <!--显示原来的图片-->
+                <img :src="oldUrl" width="100">
+                <el-upload
+                        action="/upload"
+                        name="picFile"
+                        limit="1"
+                        list-type="picture-card"
+                        :on-preview="handlePictureCardPreview"
+                        :on-success="handleSuccess"
+                        :on-remove="handleRemove">
+                    <i class="el-icon-plus"></i>
+                </el-upload>
+                <el-dialog :visible.sync="dialogVisible">
+                    <img width="100%" :src="dialogImageUrl" alt="">
+                </el-dialog>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="success" @click="update()">修改商品</el-button>
+            </el-form-item>
+        </el-form>
+    </el-card>
+
+
+</div>
+</body>
+<!--引入axios和vue框架文件-->
+<script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.min.js"></script>
+
+<!-- import Vue before Element -->
+<script src="https://cdn.staticfile.org/vue/2.6.14/vue.min.js"></script>
+<!-- import JavaScript -->
+<script src="https://cdn.staticfile.org/element-ui/2.15.9/index.min.js"></script>
+<script>
+    let v = new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                dialogImageUrl: '',
+                dialogVisible: false,
+                arr: [],
+                p: {
+                    title: "", price: "", oldPrice: "",
+                    saleCount: "", num: "", url: "", categoryId: ""
+                },
+                oldUrl:""
+            }
+        },
+        methods: {
+            update() {
+
+                //发请求
+                axios.post("/product/update",v.p).then(function (response) {
+                    location.href="/admin.html";//回到后台管理页面
+                })
+            },
+            goBack() {
+                //返回上一页面
+                history.back();
+            },
+            handleSuccess(response, file, fileList) {
+                v.p.url = response;
+            },
+            handleRemove(file, fileList) {
+                v.p.url = v.oldUrl;
+                axios.get("/remove?url=" + file.response).then(function () {
+                    console.log("删除文件完成!");
+                })
+
+            },
+            handlePictureCardPreview(file) {
+                this.dialogImageUrl = file.url;
+                this.dialogVisible = true;
+            }
+        },
+        created: function () {
+            //发请求获取所有分类数据
+            axios.get("/category/select").then(function (response) {
+                v.arr = response.data;
+            })
+            //发出请求获取商品详情信息
+            axios.get("/product/selectUpdateById"+location.search).then(function (response) {
+                v.p = response.data;
+                //把原来图片的路径用单独的一个变量记录,避免联动
+                v.oldUrl = v.p.url;
+            })
+        }
+    })
+</script>
+</html>

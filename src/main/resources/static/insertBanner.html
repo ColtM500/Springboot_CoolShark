@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/element-ui/2.15.9/theme-chalk/index.css">
+</head>
+<body>
+<div id="app">
+    <el-page-header style="background-color: #0096dc;color: white;line-height: 60px"
+                    @back="goBack" content="添加轮播图页面">
+    </el-page-header>
+    <el-upload
+            action="/upload"
+            name="picFile"
+            limit="1"
+            list-type="picture-card"
+            :on-preview="handlePictureCardPreview"
+            :on-success="handleSuccess"
+            :on-remove="handleRemove">
+        <i class="el-icon-plus"></i>
+    </el-upload>
+    <el-dialog :visible.sync="dialogVisible">
+        <img width="100%" :src="dialogImageUrl" alt="">
+    </el-dialog>
+    <el-button type="success" @click="insert()">上传图片</el-button>
+</div>
+</body>
+<!--引入axios和vue框架文件-->
+<script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.min.js"></script>
+
+<!-- import Vue before Element -->
+<script src="https://cdn.staticfile.org/vue/2.6.14/vue.min.js"></script>
+<!-- import JavaScript -->
+<script src="https://cdn.staticfile.org/element-ui/2.15.9/index.min.js"></script>
+<script>
+    let v = new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                dialogImageUrl: '',
+                dialogVisible: false,
+                url:""
+            }
+        },
+        methods:{
+            insert(){
+                if (v.url==""){
+                    v.$message.error("请选择上传的图片!");
+                    return;
+                }
+                //发出添加轮播图的请求
+                axios.get("/banner/insert?url="+v.url).then(function (response) {
+                    location.href="/admin.html?currentIndex=2-1";//回到后台管理页面
+                })
+            },
+            handleSuccess(response,file,fileList){
+                v.url = response;
+            },
+            goBack(){
+                //返回上一页面
+                history.back();
+            },
+            handleSuccess(response,file,fileList){
+                v.url = response;
+
+            },
+            handleRemove(file, fileList) {
+                v.url = "";
+                console.log(file, fileList);
+                axios.get("/remove?url="+file.response).then(function (response) {
+                    console.log("删除完成!")
+                })
+            },
+            handlePictureCardPreview(file) {
+                this.dialogImageUrl = file.url;
+                this.dialogVisible = true;
+            }
+        }
+    })
+</script>
+</html>

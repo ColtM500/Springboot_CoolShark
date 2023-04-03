@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/element-ui/2.15.9/theme-chalk/index.css">
+    <style>
+        .el-header a{
+            color: #666;
+            text-decoration: none;
+        }
+        .el-menu.el-menu--horizontal{
+            border-bottom: 0;
+        }
+        .el-table .el-table__cell{
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-container>
+        <el-header height="150px">
+            <div style="width: 1200px;margin: 0 auto">
+                <img style="vertical-align: middle" src="imgs/logo.png" width="300" alt="">
+                <a href="/">首页</a><el-divider direction="vertical"></el-divider>
+                <a href="">热点资讯</a><el-divider direction="vertical"></el-divider>
+                <a href="">商家入驻</a><el-divider direction="vertical"></el-divider>
+                <a href="">社会招聘</a><el-divider direction="vertical"></el-divider>
+                <a href="">校园招聘</a><el-divider direction="vertical"></el-divider>
+                <a href="">帮助</a>
+            </div>
+            <!--导航菜单开始-->
+            <div style="background-color: #0aa1ed">
+                <el-menu @select="handleSelect" style="width: 1200px;margin: 0 auto" mode="horizontal" background-color="#0aa1ed"
+                         text-color="#fff" active-text-color="#fff" >
+                    <el-menu-item v-for="c in arr" :index="c.id">{{c.name}}</el-menu-item>
+                    <div style="float: right;position: relative;top: 10px">
+                        <el-input @keydown.native.enter="search()" type="text" v-model="wd">
+                            <!--在文本框中内嵌一个搜索按钮-->
+                            <el-button slot="append" @click="search()" icon="el-icon-search"></el-button>
+                        </el-input>
+                    </div>
+                </el-menu>
+            </div>
+            <!--导航菜单结束-->
+        </el-header>
+        <el-main style="width: 1200px;margin: 0 auto">
+            <el-row gutter="20">
+                <el-col span="12">
+                    <el-card>
+                        <img :src="p.url" width="100%">
+                    </el-card>
+                </el-col>
+                <el-col span="12">
+                    <p style="font-size: 25px;font-weight: bold">{{p.title}}</p>
+                    <el-divider></el-divider>
+                    <p style="font-size: 15px;color: #666">销量:{{p.saleCount}}件 浏览量:{{p.viewCount}}</p>
+                    <p style="font-size: 15px;color: #666">库存:{{p.num}}件 发布于:{{p.created}}</p>
+                    <p style="font-size: 20px;font-weight: bold">
+                        ￥{{p.price}} <span style="font-size: 15px;color: #666">原价:<s>{{p.oldPrice}}</s></span>
+                    </p>
+                    <el-row gutter="10" style="text-align: center">
+                        <el-col span="8">
+                            <el-card>
+                                <img src="imgs/ewm.jpg" width="100%">
+                            </el-card>
+                            <p>扫码关注公众号</p>
+                        </el-col>
+                        <el-col span="8">
+                            <el-card>
+                                <img src="imgs/ewm.jpg" width="100%">
+                            </el-card>
+                            <p>扫码购买商品</p>
+                        </el-col>
+                        <el-col span="8">
+                            <el-card>
+                                <img src="imgs/ewm.jpg" width="100%">
+                            </el-card>
+                            <p>扫码下载App</p>
+                        </el-col>
+                    </el-row>
+                </el-col>
+            </el-row>
+        </el-main>
+        <el-footer>
+            <div style="background-image: url('imgs/wave.png');height: 90px"></div>
+            <div style="background-color: #282c30;color: #666;text-align: center;padding: 50px 0">
+                <p>Copyright © 陈氏家族有限公司</p>
+                <p>涵盖20余门课程体系，致力于打造权威的IT职业教育学习平台</p>
+                <p>达内在线WWW.TMOOC.CN 专注于IT职业技能培训</p>
+            </div>
+        </el-footer>
+    </el-container>
+</div>
+</body>
+<!--引入axios和vue框架文件-->
+<script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.min.js"></script>
+
+<!-- import Vue before Element -->
+<script src="https://cdn.staticfile.org/vue/2.6.14/vue.min.js"></script>
+<!-- import JavaScript -->
+<script src="https://cdn.staticfile.org/element-ui/2.15.9/index.min.js"></script>
+<script>
+    let v = new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                p:{},
+                arr:[],
+                wd:""
+            }
+        },
+        methods:{
+            handleSelect(key,keyPath){
+                location.href="/result.html?id="+key;
+            },
+            search(){
+                location.href="/result.html?id="+v.wd;
+            }
+        },
+        created:function (){
+            //获取所有分类
+            axios.get("/category/select").then(function (response) {
+                v.arr = response.data;
+            })
+
+            //获取商品详情信息
+            axios.get("/product/selectDetailById"+location.search).then(function (response) {
+                v.p = response.data;
+            })
+        }
+    })
+</script>
+</html>

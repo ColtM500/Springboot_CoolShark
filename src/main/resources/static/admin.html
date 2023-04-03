@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/element-ui/2.15.9/theme-chalk/index.css">
+</head>
+<body>
+<div id="app">
+    <el-container>
+        <el-header style="background-color: #0096dc">
+            <h1 style="font-size: 22px;color: white">
+                CoolShark商城后台管理系统
+                <span style="float: right">
+                    欢迎{{user.nickname}}回来
+                    <a href="javascript:void(0)" @click="logout()" >退出登录</a>
+                </span>
+            </h1>
+        </el-header>
+        <el-container>
+            <el-aside width="200px">
+                <el-menu @select="handleSelect">
+                    <el-submenu index="1">
+                        <template slot="title"><i class="el-icon-s-flag"></i>分类管理</template>
+                        <el-menu-item index="1-1">分类列表</el-menu-item>
+                        <el-menu-item index="1-2">添加分类</el-menu-item>
+                    </el-submenu>
+                    <el-submenu index="2">
+                        <template slot="title"><i class="el-icon-picture"></i>轮播图管理</template>
+                        <el-menu-item index="2-1">轮播图列表</el-menu-item>
+                        <el-menu-item index="2-2">添加轮播图</el-menu-item>
+                    </el-submenu>
+                    <el-submenu index="3">
+                        <template slot="title"><i class="el-icon-shopping-cart-2"></i>商品管理</template>
+                        <el-menu-item index="3-1">商品列表</el-menu-item>
+                        <el-menu-item index="3-2">添加商品</el-menu-item>
+                    </el-submenu>
+                </el-menu>
+            </el-aside>
+            <el-main>
+                <!--分类表格开始-->
+                <el-table v-if="currentIndex=='1-1'"
+                          :data="categoryArr"
+                          style="width: 100%">
+                    <el-table-column type="index" label="编号"></el-table-column>
+                    <!--prop=property属性 设置当前列显示的文本内容为对象的xxx属性-->
+                    <el-table-column prop="name" label="分类名称">
+                    </el-table-column>
+                    <el-table-column label="操作">
+                        <!--scope定义的一个变量名, 里面包含当前行的信息
+                        scope.$index得到当前行的下标
+                        scope.row 得到当前行对应数组里面的对象
+                        -->
+                        <template slot-scope="scope">
+                            <el-button
+                                    size="mini"
+                                    type="success"
+                                    @click="categoryUpdate(scope.$index, scope.row)">修改</el-button>
+                            <el-button
+                                    size="mini"
+                                    type="danger"
+                                    @click="categoryDelete(scope.$index, scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <!--分类表格结束-->
+                <!--轮播图表格开始-->
+                <el-table v-if="currentIndex=='2-1'"
+                          :data="bannerArr"
+                          style="width: 100%">
+                    <el-table-column type="index" label="编号"></el-table-column>
+                    <!--prop=property属性 设置当前列显示的文本内容为对象的xxx属性-->
+                    <el-table-column label="轮播图" width="300">
+                        <template slot-scope="scope">
+                            <img :src="scope.row.url" width="100%">
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作">
+                        <!--scope定义的一个变量名, 里面包含当前行的信息
+                        scope.$index得到当前行的下标
+                        scope.row 得到当前行对应数组里面的对象
+                        -->
+                        <template slot-scope="scope">
+                            <el-button
+                                    size="mini"
+                                    type="success"
+                                    @click="bannerUpdate(scope.$index, scope.row)">修改</el-button>
+                            <el-button
+                                    size="mini"
+                                    type="danger"
+                                    @click="bannerDelete(scope.$index, scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <!--轮播图表格结束-->
+                <!--商品表格开始-->
+                <el-table v-if="currentIndex=='3-1'"
+                          :data="productArr"
+                          style="width: 100%">
+                    <el-table-column type="index" label="编号"></el-table-column>
+                    <el-table-column prop="title" label="商品标题"></el-table-column>
+                    <el-table-column prop="price" label="商品价格"></el-table-column>
+                    <el-table-column prop="oldPrice" label="商品原价"></el-table-column>
+                    <el-table-column prop="saleCount" label="商品销量"></el-table-column>
+                    <el-table-column prop="num" label="商品库存"></el-table-column>
+                    <el-table-column prop="viewCount" label="商品浏览量"></el-table-column>
+                    <el-table-column prop="created" label="发布时间"></el-table-column>
+                    <!--prop=property属性 设置当前列显示的文本内容为对象的xxx属性-->
+                    <el-table-column label="商品图片" width="80">
+                        <template slot-scope="scope">
+                            <img :src="scope.row.url" width="100%">
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作">
+                        <!--scope定义的一个变量名, 里面包含当前行的信息
+                        scope.$index得到当前行的下标
+                        scope.row 得到当前行对应数组里面的对象
+                        -->
+                        <template slot-scope="scope">
+                            <el-button
+                                    size="mini"
+                                    type="success"
+                                    @click="productUpdate(scope.$index, scope.row)">修改</el-button>
+                            <el-button
+                                    size="mini"
+                                    type="danger"
+                                    @click="productDelete(scope.$index, scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <!--商品表格结束-->
+            </el-main>
+        </el-container>
+    </el-container>
+</div>
+</body>
+<!--引入axios和vue框架文件-->
+<script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.min.js"></script>
+
+<!-- import Vue before Element -->
+<script src="https://cdn.staticfile.org/vue/2.6.14/vue.min.js"></script>
+<!-- import JavaScript -->
+<script src="https://cdn.staticfile.org/element-ui/2.15.9/index.min.js"></script>
+<script>
+    let v = new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                currentIndex:"1-1",
+                categoryArr:[],
+                bannerArr:[],
+                productArr:[],
+                user:{}
+            }
+        },
+        methods:{
+            logout(){
+                if (confirm("您确认退出登录吗?")){
+                    axios.get("/logout").then(function () {
+                        location.href="/";
+                    })
+                }
+            },
+            productUpdate(i,p){
+                //跳转到修改商品页面
+                location.href = "/updateProduct.html?id="+p.id;
+            },
+            bannerUpdate(i,b){
+                //跳转到修改轮播图页面
+                location.href="/updateBanner.html?id="+b.id;
+            },
+            categoryUpdate(i,c){
+                let name = prompt("请输入新的分类名称");
+                if(name==null){
+                    return
+                }
+                if (name.trim()==''){
+                    v.$message.error("分类名称不能为空!");
+                    return;
+                }
+                let category = {id:c.id,name:name}
+                //发出修改分类的请求
+                axios.post("/category/update",category).then(function (response) {
+                    //让页面发生改变
+                    c.name=name;
+                })
+            },
+            categoryDelete(i,c){
+                if (confirm("您确认删除此分类吗?")){
+                    //发出删除分类数据请求
+                    axios.get("/category/delete?id="+c.id).then(function (response) {
+                        v.categoryArr.splice(i,1);
+                        v.$message.success("成功删除"+c.name+"分类!");
+                    })
+                }
+            },
+            bannerDelete(i,b){
+                if (confirm("您确认删除此轮播图吗?")){
+                    axios.get("/banner/delete?id="+b.id).then(function () {
+                        v.bannerArr.splice(i,1);
+                        v.$message.success("删除成功!");
+                    })
+                }
+            },
+            productDelete(i,p){
+                if (confirm("您确定删除此商品吗?")){
+                    axios.get("/product/delete?id="+p.id).then(function () {
+                        v.productArr.splice(i,1);
+                        v.$message.success("删除成功!");
+                    })
+                }
+            },
+            handleSelect(key,keyPath){
+                //记录当前用户点击的导航菜单的位置
+                if (key=='1-2'){
+                    let name = prompt("请输入分类的名称");
+                    console.log("name="+name);
+                    if (name==null){
+                        return;
+                    }
+                    if (name.trim()==''){
+                        v.$message.error("分类名称不能为空!");
+                        return;
+                    }
+                    //发出添加分类的请求
+                    axios.get("/category/insert?name="+name).then(function (response) {
+                        //添加完分类后 把最新的装着所有分类的数组响应回来
+                        v.categoryArr = response.data;
+                    })
+
+                }else if(key=='2-2'){
+                    location.href="insertBanner.html";
+                }else if(key=='3-2'){
+                    location.href="insertProduct.html";
+                }else{
+                    v.currentIndex = key;
+                }
+            }
+        },
+        created:function () {
+            //发请求获取所有分类的信息
+            axios.get("/category/select").then(function (response) {
+                v.categoryArr = response.data;
+            })
+            //发请求获取所有轮播图的信息
+            axios.get("/banner/select").then(function (response) {
+                v.bannerArr = response.data;
+            })
+            //发请求获取所有商品信息
+            axios.get("/product/selectAdmin").then(function (response) {
+                v.productArr = response.data;
+            })
+            //发请求获取当前登录的用户对象
+            axios.get("/currentUser").then(function (response) {
+                v.user = response.data;
+                //如果没有登录的话会话对象里面得到的是一个null 但是传递 到客户端这边后变成了空字符串
+                if (v.user==""){
+                    alert("请先登录!");
+                    location.href="/login.html";
+                }
+            })
+        }
+    })
+</script>
+</html>
